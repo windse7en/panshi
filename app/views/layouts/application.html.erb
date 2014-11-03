@@ -7,28 +7,27 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mainsite</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
-  	<%= yield(:head) %>
+	<title>Mainsite</title>
+	<%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+	<%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+	<%= csrf_meta_tags %>
+	<%= yield(:head) %>
 </head>
-<body>
-
-	<div class="navbar navbar-inverse navbar-fixed-top shadow-default" role="navigation">
-		<div class="container-fluid" style="margin-top: 12px;">
+<body class="<%= controller_name %> <%= action_name %>">
+	<div class="navbar-collapse collapse">
+		<div  class="container-fluid position-center">
 			<%= render 'layouts/navigation' %>
 		</div>
 	</div>
-
-<% if notice %>
-  <p class="alert alert-success"><%= notice %></p>
-<% end %>
-<% if alert %>
-  <p class="alert alert-danger"><%= alert %></p>
-<% end %>
-
-<%= yield %>
+	<div class="container-fluid">
+		<% if notice %>
+		<p class="alert alert-success"><%= notice %></p>
+		<% end %>
+		<% if alert %>
+		<p class="alert alert-danger"><%= alert %></p>
+		<% end %>
+	</div>
+	<%= yield %>
 	<%= yield(:place_for_modal) %>
 </body>
 </html>
