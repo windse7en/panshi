@@ -1,0 +1,11 @@
+<div class="navbar-collapse collapse">
+  <ul class="nav navbar-nav navbar-right">
+    <li><%= link_to t(:home), index_path %></li>
+    
+<% if user_signed_in? %>
+    <li><%= link_to t(:logout), destroy_user_session_path, :method=>'delete' %></li>
+<% end %>
+
+    <li><a data-toggle="modal" href="#help"><%=t(:help)%></a></li>
+  </ul>
+</div>
