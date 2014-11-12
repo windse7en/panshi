@@ -755,7 +755,8 @@ function position_modal_at_centre()
         if (viewport().width > window.sm_screen_max && check_if_modal_content_fits_inside_the_page == true)
         {
             var top_margin_to_align_modal_at_middle_of_page = (viewport().height - modal_height) / 2;
-            modal_content_container.css({ "margin-top":top_margin_to_align_modal_at_middle_of_page+"px", "margin-bottom":"20px" });
+            // change top_margin_to_align_modal_at_middle_of_page to the fixed 60 pixel
+            modal_content_container.css({ "margin-top":"60px", "margin-bottom":"20px" });
         }
         // end: for large viewports
 

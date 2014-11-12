@@ -12,10 +12,10 @@ function init() {
             test_data = data;
             while (test_data.length != 0) {
                 var temp = test_data.pop();
-                var event_temp = {title:temp.product_id, start:temp.reserve_end_at} //, end: temp.reserve_end_at}; 
+                var event_temp = {title:temp.product_id, start:temp.reserve_start_at, end: temp.reserve_end_at}; 
+                $('#calendar').fullCalendar( 'renderEvent', event_temp );       // render the new events
                 event_data.push(event_temp);
             }
-            $('#calendar').fullCalendar( 'renderEvent', event_data );       // render the new events
         } 
     });
 
@@ -35,8 +35,7 @@ $(document).ready(function() {
         theme: true,	// set the theme of the calendar
         defaultDate: '2014-09-12',
         editable: true,
-        events: event_data,
-		eventLimit: true, // allow "more" link when too many events
+     	eventLimit: true, // allow "more" link when too many events
         weekends: false, // will hide Saturdays and Sundays
         lang: 'zh-cn',	// set language to Simplicity Chinese
         dayClick: function() {
