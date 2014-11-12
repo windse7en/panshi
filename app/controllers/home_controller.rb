@@ -6,4 +6,14 @@ class HomeController < ApplicationController
 			redirect_to action:'homepage'
 		end
 	end
+
+	def init_event
+		@event = Event.all
+	    respond_to do |format|
+	      format.json { 
+	        render json: @event.map
+	      }
+	    end
+	end
+
 end

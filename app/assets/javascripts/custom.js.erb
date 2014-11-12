@@ -1,0 +1,56 @@
+// for the index calendar showing
+var modal_shown = false;
+var test_data;
+var event_data=[];
+
+function init() {
+    $.ajax({
+        url: "/init_event",
+        type: "post",
+        data: {data: 1},
+        success: function( data ){
+            test_data = data;
+            while (test_data.length != 0) {
+                var temp = test_data.pop();
+                var event_temp = {title:temp.product_id, start:temp.reserve_end_at} //, end: temp.reserve_end_at}; 
+                event_data.push(event_temp);
+            }
+            $('#calendar').fullCalendar( 'renderEvent', event_data );       // render the new events
+        } 
+    });
+
+}
+
+$(document).ready(function() {
+
+
+	console.log('Calendar starts');
+	$('#calendar').fullCalendar({
+        // put your options and callbacks here
+        header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+        theme: true,	// set the theme of the calendar
+        defaultDate: '2014-09-12',
+        editable: true,
+        events: event_data,
+		eventLimit: true, // allow "more" link when too many events
+        weekends: false, // will hide Saturdays and Sundays
+        lang: 'zh-cn',	// set language to Simplicity Chinese
+        dayClick: function() {
+        alert('a day has been clicked!');
+    	}
+    });
+
+    $('#eventCalendar').on('shown.bs.modal', function (e) {
+  		// do something...
+  		if(modal_shown == false) {
+	  		console.log('modal has been shown');
+	  		$('#calendar').fullCalendar('today');
+	  		modal_shown = true;
+            init();
+	  	}
+	});
+});
