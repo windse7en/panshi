@@ -2,28 +2,197 @@
 var modal_shown = false;
 var test_data;
 var event_data=[];
+var allp;
+var alle;
+var allc;
+// var view1;
+// var element1;
+var calEvent1;
+var local_time=(new Date()).toISOString().substring(19,25);
+var event_id;
+var date_w;
+
+function initSelect() {
+    $.ajax({
+        url: "/get_all_info",
+        type: "post",
+        data: {},
+        success: function( data ){
+            allp = data[0];
+            alle = data[1];
+            allc = data[2];
+        } 
+    });
+}
 
 function init() {
+    var start = new Date();
+    var end = new Date();
+    start.setMonth(start.getMonth()-1,1);
+    end.setMonth(end.getMonth()+1,31);
+    event_data=[];
+    $('#calendar').fullCalendar('removeEvents');
     $.ajax({
         url: "/init_event",
         type: "post",
-        data: {data: 1},
+        data: {start: start,
+                end: end},
         success: function( data ){
             test_data = data;
             while (test_data.length != 0) {
                 var temp = test_data.pop();
-                var event_temp = {title:temp.product_id, start:temp.reserve_start_at, end: temp.reserve_end_at}; 
+                console.log(temp);
+                var event_temp = {title:temp.product_name, start:temp.reserve_start_at, end: temp.reserve_end_at, id: temp.id, p_id: temp.product_id, e_id: temp.employee_id, c_id: temp.customer_id}; 
                 $('#calendar').fullCalendar( 'renderEvent', event_temp );       // render the new events
                 event_data.push(event_temp);
             }
         } 
     });
+}
 
+function event_open_modal (calEvent) {
+    var modal = $("#common-modal.modal");
+    var modal_body = modal.find(".modal-body");
+    var modal_content_container_to_populate = "<div class='form-horizontal'>\
+            <div class='form-group'>\
+              <div class='col-sm-2'>\
+                <label for='inputProduct' class='control-label'>预约安排</label>\
+              </div>\
+              <div class='col-sm-10'>\
+                <select id='selectProduct' class='form-control' style=\" font-family: sans-serif !important;\" ></select>\
+              </div>\
+            </div>\
+            <div class='form-group'>\
+              <div class='col-sm-2'>\
+                <label for='inputEmployee' class='control-label'>预约员工</label>\
+              </div>\
+              <div class='col-sm-10'>\
+                <select id='selectEmployee' class='form-control' style=\" font-family: sans-serif !important;\" ></select>\
+              </div>\
+            </div>\
+            <div class='form-group'>\
+              <div class='col-sm-2'>\
+                <label for='inputCustomer' class='control-label'>预约顾客</label>\
+              </div>\
+              <div class='col-sm-10'>\
+                <select id='selectCustomer' class='form-control' style=\" font-family: sans-serif !important;\" ></select>\
+              </div>\
+            </div>\
+            <div class='form-group'>\
+              <div class='col-sm-2'>\
+                <label for='inputDate' class='control-label'>预约日期</label>\
+              </div>\
+              <div class='col-sm-10'>\
+                <input type='date' class='form-control' id='inputDate'>\
+              </div>\
+            </div>\
+            <div class='form-group'>\
+              <div class='col-sm-2'>\
+                <label for='inputStart' class='control-label'>开始时间</label>\
+              </div>\
+              <div class='col-sm-10'>\
+                <input id='inputTimeStart' type='text' class='form-control time ui-timepicker-input' autocomplete='off'>\
+              </div>\
+            </div>\
+            <div class='form-group'>\
+              <div class='col-sm-2'>\
+                <label for='inputEnd' class='control-label'>结束时间</label>\
+              </div>\
+              <div class='col-sm-10'>\
+                <input id='inputTimeEnd' type='text' class='form-control time ui-timepicker-input' autocomplete='off'>\
+              </div>\
+            </div>\
+            <div class='form-group'>\
+              <div class='col-sm-offset-2 col-sm-10'>\
+                <button onclick='submit_time();'  class='btn btn-default'>修改</button>\
+              </div>\
+            </div>\
+          </div>";
+
+        // if modal and content container exists
+    if (modal_body.length > 0 && modal_content_container_to_populate.length > 0)
+    {
+        // fade out main content of page (so modal content is readable)
+        $("#outer-container").fadeTo("fast",0.2);
+
+        // get initial vertical offset so that when modal is opened/closed, it ensures that page doesn't scroll to top (bugfix)
+        var initial_vertical_scroll_offset = $(document).scrollTop();
+
+        var modal_content = modal_content_container_to_populate; // get content to populate in modal
+        modal_body.empty().html(modal_content); // first empty the modal body and then populate it with new content
+        $("#inputDate").val(calEvent.start._i.substring(0,10));
+        $('#inputTimeStart').val(calEvent.start._i.substring(11,19));
+        $('#inputTimeEnd').val(calEvent.end._i.substring(11,19));
+        $('#inputTimeStart').timepicker({ 'timeFormat': 'H:i:s', 'minTime': '09:00:00', 'maxTime': '20:00:00', 'showDuration': true });
+        $('#inputTimeEnd').timepicker({ 'timeFormat': 'H:i:s', 'minTime': '09:00:00', 'maxTime': '20:00:00', 'showDuration': true });
+        var selectHtml="";
+        $.each( allp, function( index, value ) {
+            selectHtml += '<option ' +((value.id == calEvent.p_id)?' selected ':'') + ' value="' + value.id + '">' + value.product_name + '</option>';
+        });
+        $('#selectProduct').html( selectHtml );
+        selectHtml="";
+        $.each( alle, function( index, value ) {
+            selectHtml += '<option ' +((value.id == calEvent.e_id)?' selected ':'') + ' value="' + value.id + '">' + value.employee_name + '</option>';
+        });
+        $('#selectEmployee').html( selectHtml );
+        selectHtml="";
+        $.each( allc, function( index, value ) {
+            selectHtml += '<option ' +((value.id == calEvent.c_id)?' selected ':'') + ' value="' + value.id + '">' + value.customer_name + '</option>';
+        });
+        $('#selectCustomer').html( selectHtml );
+        selectHtml="";
+
+
+        // open modal (popup)
+        modal.modal(); 
+
+        // when modal is shown, position it in the middle of the page 
+        modal.on('shown.bs.modal', function (e) {
+            // position_modal_at_centre();
+        });
+
+        // when modal starts to close, fade in main content 
+        modal.on('hide.bs.modal', function (e) {
+            $("#outer-container").fadeTo("fast",1);
+        });
+
+        // when modal is hidden, empty modal body 
+        modal.on('hidden.bs.modal', function (e) {
+            modal_body.empty(); // empty modal body
+        }); 
+    }
+    event_id = calEvent.id;
+    $('#common-modal').modal('show');
+    return true;
+}
+
+function submit_time() {
+    var date_s  = $('#inputDate').val();
+    var start_s = $('#inputTimeStart').val();
+    var end_s = $('#inputTimeEnd').val();  
+    $.ajax({
+        url: "/update_event",
+        type: "post",
+        data: {
+                id: event_id,
+                product_id: $("#selectProduct").val(),
+                employee_id: $("#selectEmployee").val(),
+                customer_id: $("#selectCustomer").val(),
+                start: date_s+"T"+start_s+local_time, 
+                end: date_s+"T"+end_s+local_time},
+
+        success: function( data ){
+            if (data.result == "Fail") {
+                alert("亲，数据君更新失败，请稍后尝试");
+            };
+            console.log(data);
+        } 
+    });
+    $('#common-modal').modal('hide');
+    init();
 }
 
 $(document).ready(function() {
-
-
 	console.log('Calendar starts');
 	$('#calendar').fullCalendar({
         // put your options and callbacks here
@@ -38,10 +207,26 @@ $(document).ready(function() {
      	eventLimit: true, // allow "more" link when too many events
         weekends: false, // will hide Saturdays and Sundays
         lang: 'zh-cn',	// set language to Simplicity Chinese
-        dayClick: function() {
-        alert('a day has been clicked!');
-    	}
+        dayClick: function(date, allDay, jsEvent, view) {
+            date_w = date;
+            // if (!allDay) {
+                // Clicked on the entire day
+                $('#calendar').fullCalendar('changeView', 'agendaDay'/* or 'basicDay' */);
+                $('#calendar').fullCalendar('gotoDate', date);
+            // }
+        },
+        eventClick: function(calEvent, jsEvent, view) {
+            calEvent1 = calEvent;
+            console.log(jsEvent);
+            event_open_modal(calEvent);
+
+        },
+        viewRender: function(view, element) { 
+            // alert('new view: ' + view.name); console.log(view); console.log(element); 
+        }
     });
+
+    // init();
 
     $('#eventCalendar').on('shown.bs.modal', function (e) {
   		// do something...
@@ -50,6 +235,7 @@ $(document).ready(function() {
 	  		$('#calendar').fullCalendar('today');
 	  		modal_shown = true;
             init();
+            initSelect();
 	  	}
 	});
 });
