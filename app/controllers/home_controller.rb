@@ -1,9 +1,11 @@
 class HomeController < ApplicationController
 	def index
-		if params.has_key?(:flag)
-			render "index"
-		elsif user_signed_in?
-			redirect_to action:'homepage'
+		Rack::MiniProfiler.step("homepage in the index function") do
+			if params.has_key?(:flag)
+				render "index"
+			elsif user_signed_in?
+					redirect_to action:'homepage'
+			end
 		end
 	end
 

@@ -15,6 +15,8 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.0.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 # gem 'therubyracer',  platforms: :ruby
+# compress assets
+gem 'sprockets-rails', :require => 'sprockets/railtie'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
@@ -26,13 +28,21 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0',          group: :doc
 
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-gem 'spring',        group: :development
+# ,        group: :development
+
+group :dvelopment do 
+	gem 'spring'
+	gem 'thin'
+end
 
 # active admin from github
 gem 'activeadmin', github: 'activeadmin'
 
 # use attr_attributes
 gem 'protected_attributes'
+
+# use miniprofiler to moniter the load speed
+gem 'rack-mini-profiler'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
