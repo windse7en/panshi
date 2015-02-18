@@ -17,7 +17,7 @@ class HomeController < ApplicationController
 				t = e.product
 				te = e.employee
 				tc = e.customer
-				result.push e.attributes.slice("id","reserve_start_at","reserve_end_at","employee_id","customer_id","product_id").merge("product_name"=>t.product_name, "price"=>t.price,"employee_name"=>te.employee_name,"customer_name"=>tc.customer_name)
+				result.push e.attributes.slice("id","reserve_start_at","reserve_end_at","employee_id","customer_id","product_id", "event_comment").merge("product_name"=>t.product_name, "price"=>t.price,"employee_name"=>te.employee_name,"customer_name"=>tc.customer_name)
 			end
 		    respond_to do |format|
 		      format.json { 
@@ -53,13 +53,13 @@ class HomeController < ApplicationController
 	end
 
 	def update_event
-		if params.has_key?(:id) and params.has_key?(:start) and params.has_key?(:product_id) and params.has_key?(:end) and params.has_key?(:employee_id) and params.has_key?(:customer_id)
+		if params.has_key?(:id) and params.has_key?(:start) and params.has_key?(:product_id) and params.has_key?(:end) and params.has_key?(:employee_id) and params.has_key?(:customer_id) and params.has_key?(:event_comment)
 			temp = Event.find(params[:id].to_i)
 			begin
-				logger.debug(temp)
-				temp.update_attributes(:employee_id=>params[:employee_id].to_i, :customer_id=>params[:customer_id].to_i, :product_id=>params[:product_id].to_i)
-				logger.debug(params[:id])
-				temp.update_attributes(:reserve_start_at=>params[:start].to_time, :reserve_end_at=>params[:end].to_time)
+				# logger.debug(temp)
+				# temp.update_attributes(:employee_id=>params[:employee_id].to_i, :customer_id=>params[:customer_id].to_i, :product_id=>params[:product_id].to_i)
+				# logger.debug(params[:id])
+				temp.update_attributes(:employee_id=>params[:employee_id].to_i, :customer_id=>params[:customer_id].to_i, :product_id=>params[:product_id].to_i, :event_comment=>params[:event_comment].to_s, :reserve_start_at=>params[:start].to_time, :reserve_end_at=>params[:end].to_time)
 				result = "Success"
 			rescue
 				result = "Fail"

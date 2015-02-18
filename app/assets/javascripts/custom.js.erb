@@ -42,7 +42,7 @@ function init() {
             while (test_data.length != 0) {
                 var temp = test_data.pop();
                 console.log(temp);
-                var event_temp = {title:temp.product_name, start:temp.reserve_start_at, end: temp.reserve_end_at, id: temp.id, p_id: temp.product_id, e_id: temp.employee_id, c_id: temp.customer_id}; 
+                var event_temp = {event_comment: temp.event_comment, title:temp.product_name, start:temp.reserve_start_at, end: temp.reserve_end_at, id: temp.id, p_id: temp.product_id, e_id: temp.employee_id, c_id: temp.customer_id}; 
                 $('#calendar').fullCalendar( 'renderEvent', event_temp );       // render the new events
                 event_data.push(event_temp);
             }
@@ -103,6 +103,14 @@ function event_open_modal (calEvent) {
               </div>\
             </div>\
             <div class='form-group'>\
+              <div class='col-sm-2'>\
+                <label for='inputComment' class='control-label'>预约备注</label>\
+              </div>\
+              <div class='col-sm-10'>\
+                <textarea id='inputComment' class='form-control' cols='40' rows='5'></textarea>\
+              </div>\
+            </div>\
+            <div class='form-group'>\
               <div class='col-sm-offset-2 col-sm-10'>\
                 <button onclick='submit_time();'  class='btn btn-default'>修改</button>\
               </div>\
@@ -125,6 +133,7 @@ function event_open_modal (calEvent) {
         $('#inputTimeEnd').val(calEvent.end._i.substring(11,19));
         $('#inputTimeStart').timepicker({ 'timeFormat': 'H:i:s', 'minTime': '09:00:00', 'maxTime': '20:00:00', 'showDuration': true });
         $('#inputTimeEnd').timepicker({ 'timeFormat': 'H:i:s', 'minTime': '09:00:00', 'maxTime': '20:00:00', 'showDuration': true });
+        $('textarea#inputComment').val(calEvent.event_comment);
         var selectHtml="";
         $.each( allp, function( index, value ) {
             selectHtml += '<option ' +((value.id == calEvent.p_id)?' selected ':'') + ' value="' + value.id + '">' + value.product_name + '</option>';
@@ -141,6 +150,7 @@ function event_open_modal (calEvent) {
         });
         $('#selectCustomer').html( selectHtml );
         selectHtml="";
+
 
 
         // open modal (popup)
@@ -178,8 +188,10 @@ function submit_time() {
                 product_id: $("#selectProduct").val(),
                 employee_id: $("#selectEmployee").val(),
                 customer_id: $("#selectCustomer").val(),
+                event_comment: $("#inputComment").val(),
                 start: date_s+"T"+start_s+local_time, 
                 end: date_s+"T"+end_s+local_time},
+                
 
         success: function( data ){
             if (data.result == "Fail") {
