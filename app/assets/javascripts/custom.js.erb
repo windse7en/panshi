@@ -12,6 +12,8 @@ var local_time=(new Date()).toISOString().substring(19,25);
 var event_id;
 var date_w;
 
+
+
 function initSelect() {
     $.ajax({
         url: "/get_all_info",
@@ -28,7 +30,7 @@ function initSelect() {
 function init() {
     var start = new Date();
     var end = new Date();
-    start.setMonth(start.getMonth()-1,1);
+    start.setYear(start.getYear()-1,1);
     end.setMonth(end.getMonth()+1,31);
     event_data=[];
     $('#calendar').fullCalendar('removeEvents');

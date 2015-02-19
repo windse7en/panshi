@@ -35,6 +35,9 @@ group :dvelopment do
 	gem 'thin'
 end
 
+# lazyloading for the image
+gem "lazyload-rails"
+
 # active admin from github
 gem 'activeadmin', github: 'activeadmin'
 
