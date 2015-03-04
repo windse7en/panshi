@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+# gem ctags for ctags
+gem 'gem-ctags'
+
 # devise for the users
 gem 'devise'
 
