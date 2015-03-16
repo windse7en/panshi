@@ -10,48 +10,11 @@ class HomeController < ApplicationController
 	end
 
 	def init_event
-		if params.has_key?(:start) and params.has_key?(:end)
-			start_day = params[:start].to_time
-			end_day = params[:end].to_time
-			event = Event.where(:reserve_start_at=>start_day..end_day)
-			result = []
-			event.map do |e|
-				t = e.product
-				te = e.employee
-				tc = e.customer
-				result.push e.attributes.slice("id","reserve_start_at","reserve_end_at","employee_id","customer_id","product_id", "event_comment").merge("product_name"=>t.product_name, "price"=>t.price,"employee_name"=>te.employee_name,"customer_name"=>tc.customer_name)
-			end
-		    respond_to do |format|
-		      format.json { 
-		        render json: result
-		      }
-		    end
-		end
-	end
-
-	def get_all_info
-		re_p = []
-		re_e = []
-		re_c = []
-		product = Product.all
-		employee = Employee.all
-		customer = Customer.all
-		result = []
-		product.map do |e|
-			re_p.push e.attributes.slice("id","product_name")
-		end
-		employee.map do |e|
-			re_e.push e.attributes.slice("id","employee_name")
-		end
-		customer.map do |e|
-			re_c.push e.attributes.slice("id","customer_name")
-		end
-		result.push re_p, re_e, re_c
-	    respond_to do |format|
-	      format.json { 
-	        render json: result
-	      }
-	    end
+    respond_to do |format|
+      format.json { 
+        render json: Calendars.init
+      }
+    end
 	end
 
 	def update_event

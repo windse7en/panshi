@@ -1,52 +1,64 @@
 // for the index calendar showing
 var modal_shown = false;
-var test_data;
-var event_data=[];
-var allp;
-var alle;
-var allc;
-// var view1;
-// var element1;
-var calEvent1;
-var local_time=(new Date()).toISOString().substring(19,25);
-var event_id;
-var date_w;
+var event_array = [];
 
+//load te fullcalendar from the documents is readay.
+// bind the show modal event into calender
+$(document).ready(function() {
+	console.log('Calendar starts');
+	$('#calendar').fullCalendar({
+        // put your options and callbacks here
+        header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+        theme: true,	// set the theme of the calendar
+        defaultDate: '2014-09-12',
+        editable: true,
+     	eventLimit: true, // allow "more" link when too many events
+        weekends: false, // will hide Saturdays and Sundays
+        lang: 'zh-cn',	// set language to Simplicity Chinese
+        dayClick: function(date, allDay, jsEvent, view) {
+            // if (!allDay) {
+                // Clicked on the entire day
+                $('#calendar').fullCalendar('changeView', 'agendaDay'/* or 'basicDay' */);
+                $('#calendar').fullCalendar('gotoDate', date);
+            // }
+        },
+        eventClick: function(calEvent, jsEvent, view) {
+            console.log(jsEvent);
+            event_open_modal(calEvent);
 
-
-function initSelect() {
-    $.ajax({
-        url: "/get_all_info",
-        type: "post",
-        data: {},
-        success: function( data ){
-            allp = data[0];
-            alle = data[1];
-            allc = data[2];
-        } 
+        },
+        viewRender: function(view, element) { 
+            // alert('new view: ' + view.name); console.log(view); console.log(element); 
+        }
     });
-}
 
+  $('#eventCalendar').on('shown.bs.modal', function (e) {
+  		// do something...
+  		if(modal_shown == false) {
+	  		console.log('modal has been shown');
+	  		$('#calendar').fullCalendar('today');
+	  		modal_shown = true;
+            init();
+	  	}
+	});
+});
+
+// init the calendar, loading all the events.
 function init() {
-    var start = new Date();
-    var end = new Date();
-    start.setYear(start.getYear()-1,1);
-    end.setMonth(end.getMonth()+1,31);
-    event_data=[];
-    $('#calendar').fullCalendar('removeEvents');
     $.ajax({
         url: "/init_event",
         type: "post",
-        data: {start: start,
-                end: end},
         success: function( data ){
-            test_data = data;
-            while (test_data.length != 0) {
-                var temp = test_data.pop();
+            while (data.length != 0) {
+                var temp = data.pop();
                 console.log(temp);
-                var event_temp = {event_comment: temp.event_comment, title:temp.product_name, start:temp.reserve_start_at, end: temp.reserve_end_at, id: temp.id, p_id: temp.product_id, e_id: temp.employee_id, c_id: temp.customer_id}; 
-                $('#calendar').fullCalendar( 'renderEvent', event_temp );       // render the new events
-                event_data.push(event_temp);
+                var event_temp = {event_comment: temp.event_comment, title:temp.product_name, start:temp.reserve_start_at, end: temp.reserve_end_at, id: temp.id, product_name: temp.product_name, employee_name: temp.employee_name, customer_name: temp.customer_name}; 
+                $('#calendar').fullCalendar( 'renderEvent', event_temp, true );       // render the new events
+                event_array.push(event_temp);
             }
         } 
     });
@@ -61,7 +73,7 @@ function event_open_modal (calEvent) {
                 <label for='inputProduct' class='control-label'>预约安排</label>\
               </div>\
               <div class='col-sm-10'>\
-                <select id='selectProduct' class='form-control' style=\" font-family: sans-serif !important;\" ></select>\
+                <input id='selectProduct' type='text' class='form-control'></input>\
               </div>\
             </div>\
             <div class='form-group'>\
@@ -69,7 +81,7 @@ function event_open_modal (calEvent) {
                 <label for='inputEmployee' class='control-label'>预约员工</label>\
               </div>\
               <div class='col-sm-10'>\
-                <select id='selectEmployee' class='form-control' style=\" font-family: sans-serif !important;\" ></select>\
+                <input id='selectEmployee' type='text' class='form-control'></input>\
               </div>\
             </div>\
             <div class='form-group'>\
@@ -77,7 +89,7 @@ function event_open_modal (calEvent) {
                 <label for='inputCustomer' class='control-label'>预约顾客</label>\
               </div>\
               <div class='col-sm-10'>\
-                <select id='selectCustomer' class='form-control' style=\" font-family: sans-serif !important;\" ></select>\
+                <input id='selectCustomer' type='text' class='form-control'></input>\
               </div>\
             </div>\
             <div class='form-group'>\
@@ -112,11 +124,6 @@ function event_open_modal (calEvent) {
                 <textarea id='inputComment' class='form-control' cols='40' rows='5'></textarea>\
               </div>\
             </div>\
-            <div class='form-group'>\
-              <div class='col-sm-offset-2 col-sm-10'>\
-                <button onclick='submit_time();'  class='btn btn-default'>修改</button>\
-              </div>\
-            </div>\
           </div>";
 
         // if modal and content container exists
@@ -136,22 +143,11 @@ function event_open_modal (calEvent) {
         $('#inputTimeStart').timepicker({ 'timeFormat': 'H:i:s', 'minTime': '09:00:00', 'maxTime': '20:00:00', 'showDuration': true });
         $('#inputTimeEnd').timepicker({ 'timeFormat': 'H:i:s', 'minTime': '09:00:00', 'maxTime': '20:00:00', 'showDuration': true });
         $('textarea#inputComment').val(calEvent.event_comment);
-        var selectHtml="";
-        $.each( allp, function( index, value ) {
-            selectHtml += '<option ' +((value.id == calEvent.p_id)?' selected ':'') + ' value="' + value.id + '">' + value.product_name + '</option>';
-        });
-        $('#selectProduct').html( selectHtml );
-        selectHtml="";
-        $.each( alle, function( index, value ) {
-            selectHtml += '<option ' +((value.id == calEvent.e_id)?' selected ':'') + ' value="' + value.id + '">' + value.employee_name + '</option>';
-        });
-        $('#selectEmployee').html( selectHtml );
-        selectHtml="";
-        $.each( allc, function( index, value ) {
-            selectHtml += '<option ' +((value.id == calEvent.c_id)?' selected ':'') + ' value="' + value.id + '">' + value.customer_name + '</option>';
-        });
-        $('#selectCustomer').html( selectHtml );
-        selectHtml="";
+
+        $('#selectProduct').val(calEvent.product_name);
+        $('#selectEmployee').val(calEvent.employee_name);
+        $('#selectCustomer').val(calEvent.customer_name);
+
 
 
 
@@ -173,83 +169,6 @@ function event_open_modal (calEvent) {
             modal_body.empty(); // empty modal body
         }); 
     }
-    event_id = calEvent.id;
     $('#common-modal').modal('show');
-    return true;
 }
 
-function submit_time() {
-    var date_s  = $('#inputDate').val();
-    var start_s = $('#inputTimeStart').val();
-    var end_s = $('#inputTimeEnd').val();  
-    $.ajax({
-        url: "/update_event",
-        type: "post",
-        data: {
-                id: event_id,
-                product_id: $("#selectProduct").val(),
-                employee_id: $("#selectEmployee").val(),
-                customer_id: $("#selectCustomer").val(),
-                event_comment: $("#inputComment").val(),
-                start: date_s+"T"+start_s+local_time, 
-                end: date_s+"T"+end_s+local_time},
-                
-
-        success: function( data ){
-            if (data.result == "Fail") {
-                alert("亲，数据君更新失败，请稍后尝试");
-            };
-            console.log(data);
-        } 
-    });
-    $('#common-modal').modal('hide');
-    init();
-}
-
-$(document).ready(function() {
-	console.log('Calendar starts');
-	$('#calendar').fullCalendar({
-        // put your options and callbacks here
-        header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'month,agendaWeek,agendaDay'
-			},
-        theme: true,	// set the theme of the calendar
-        defaultDate: '2014-09-12',
-        editable: true,
-     	eventLimit: true, // allow "more" link when too many events
-        weekends: false, // will hide Saturdays and Sundays
-        lang: 'zh-cn',	// set language to Simplicity Chinese
-        dayClick: function(date, allDay, jsEvent, view) {
-            date_w = date;
-            // if (!allDay) {
-                // Clicked on the entire day
-                $('#calendar').fullCalendar('changeView', 'agendaDay'/* or 'basicDay' */);
-                $('#calendar').fullCalendar('gotoDate', date);
-            // }
-        },
-        eventClick: function(calEvent, jsEvent, view) {
-            calEvent1 = calEvent;
-            console.log(jsEvent);
-            event_open_modal(calEvent);
-
-        },
-        viewRender: function(view, element) { 
-            // alert('new view: ' + view.name); console.log(view); console.log(element); 
-        }
-    });
-
-    // init();
-
-    $('#eventCalendar').on('shown.bs.modal', function (e) {
-  		// do something...
-  		if(modal_shown == false) {
-	  		console.log('modal has been shown');
-	  		$('#calendar').fullCalendar('today');
-	  		modal_shown = true;
-            init();
-            initSelect();
-	  	}
-	});
-});

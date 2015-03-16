@@ -10,7 +10,6 @@ Rails.application.routes.draw do
   
   match '/init_event' => 'home#init_event', as: 'init_event', via:[:get, :post]
   match '/update_event' => 'home#update_event', as: 'update_event', via:[:get, :post]
-  match '/get_all_info' => 'home#get_all_info', as: 'get_all_info', via:[:get, :post]
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
